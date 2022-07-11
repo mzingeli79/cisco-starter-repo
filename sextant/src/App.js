@@ -25,19 +25,6 @@ class Banner extends React.Component {
 class Exhibit extends React.Component {
   render(){
     return (
-      <div>
-        <DataPoints/>
-      </div>
-    );
-  }
-};
-
-class DataPoints extends React.Component {
-  constructor(props){
-    super(props);
-  }
-  render(){
-    return (
       <div className='exhibit-class'>
         <h1>Data Points</h1>
         <section className='display-components'>
@@ -57,21 +44,32 @@ class UsersPublicIP extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      userPublicIP: ''
-    };
+      ipv4:'',
+      ipv6:''
+    }
   }
-  render(){
+  componentDidMount() {
+    Promise.all([fetch('https://api.ipify.org?format=json'),
+    fetch('https://api64.ipify.org?format=json')
+    ])
+    .then(([res1, res2]) => Promise.all([res1.json(), res2.json()]))
+    .then(([data1, data2]) => this.setState({
+      ipv4: data1['ip'],
+      ipv6: data2['ip']
+    }))
+  }
+  render() {
     return (
       <div>
         <section>
-          <h1>User-Public-IP:</h1>
-          <p className='user-ip'>{this.state.userPublicIP='123.456.789'}</p>
+          <h1>IP Adresses:</h1>
+          <p className='user-ip'>IPv4: {this.state.ipv4}</p>
+          <p className='user-ip'>IPv6: {this.state.ipv6}</p>
         </section>
       </div>
     );
-  }
+  };
 };
-
 class LatencyInformation extends React.Component {
   constructor(props) {
     super(props);
@@ -84,7 +82,7 @@ class LatencyInformation extends React.Component {
       <div>
         <section>
           <h1>Latency-Information:</h1>
-          <p className='latency-info'>{this.state.latencyInfo='11.2[ms]'}</p>
+          <p className='latency-info'>{this.state.latencyInfo}</p>
         </section>
       </div>
     );
