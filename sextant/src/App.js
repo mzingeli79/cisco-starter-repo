@@ -62,7 +62,7 @@ class UsersPublicIP extends React.Component {
     return (
       <div>
         <section>
-          <h1>IP Adresses:</h1>
+          <h1>User Public IP Adresses:</h1>
           <p className='user-ip'>IPv4: {this.state.ipv4}</p>
           <p className='user-ip'>IPv6: {this.state.ipv6}</p>
         </section>
@@ -70,19 +70,37 @@ class UsersPublicIP extends React.Component {
     );
   };
 };
+
+var W3CWebSocket = require('websocket').w3cwebsocket;
+var client = new W3CWebSocket('ws://localhost:55455/ws');
+
 class LatencyInformation extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      latencyInfo: ''
+  
+  componentDidMount() { 
+    client.onopen = () => {
+      console.log('Websocket Client Connected');
     };
+    client.onerror = () => {
+      console.log('Connecton Error');
+    };
+    client.onclose = () => {
+      console.log('Client Closed');
+    };
+    client.onmessage = (e) => {
+      const packetArrival = (e.data);
+      const dateInUnix = new Date().getTime();
+      const latency = dateInUnix - packetArrival;
+      const newDate = new Date(latency);
+      document.querySelector('.latency-info').innerHTML =newDate.getMilliseconds()+'ms';
+    
+    }
   }
   render(){
     return (
       <div>
         <section>
-          <h1>Latency-Information:</h1>
-          <p className='latency-info'>{this.state.latencyInfo}</p>
+          <h1>Packet Latency:</h1>
+          <p className='latency-info'></p>
         </section>
       </div>
     );
